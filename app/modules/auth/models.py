@@ -1,161 +1,45 @@
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Boolean,
-    ForeignKey,
-    TIMESTAMP
+    Column, Integer, String, Boolean, ForeignKey, TIMESTAMP, Text,
 )
-
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
 
-# ==========================================
-# SESIONES DE USUARIO
-# ==========================================
 
 class SesionUsuario(Base):
-
     __tablename__ = "sesion_usuario"
 
-    # ==============================
-    # ID
-    # ==============================
-
-    id_sesion = Column(
-        Integer,
-        primary_key=True,
-        index=True
-    )
-
-    # ==============================
-    # USUARIO
-    # ==============================
-
+    id_sesion = Column(Integer, primary_key=True, index=True)
     id_usuario = Column(
         Integer,
-        ForeignKey(
-            "usuario.id_usuario",
-            ondelete="CASCADE"
-        ),
-        nullable=False
-    )
-
-    # ==============================
-    # TOKEN JWT
-    # ==============================
-
-    token = Column(
-        String(500),
+        ForeignKey("usuario.id_usuario", ondelete="CASCADE"),
         nullable=False,
-        unique=True
+        unique=True,
     )
-
-    # ==============================
-    # FECHA LOGIN
-    # ==============================
-
+    token = Column(Text, nullable=False, unique=True)
     fecha_inicio = Column(
-        TIMESTAMP,
-        server_default=func.now(),
-        nullable=False
+        TIMESTAMP(timezone=True), server_default=func.now(), nullable=False,
     )
-
-    # ==============================
-    # EXPIRACIÓN TOTAL
-    # ==============================
-
-    fecha_expiracion = Column(
-        TIMESTAMP,
-        nullable=False
-    )
-
-    # ==============================
-    # ÚLTIMA ACTIVIDAD
-    # ==============================
-
+    fecha_expiracion = Column(TIMESTAMP(timezone=True), nullable=False)
     ultima_actividad = Column(
-        TIMESTAMP,
-        server_default=func.now(),
-        nullable=False
+        TIMESTAMP(timezone=True), server_default=func.now(), nullable=False,
     )
+    activa = Column(Boolean, default=True, nullable=False)
 
-    # ==============================
-    # SESIÓN ACTIVA
-    # ==============================
+    usuario = relationship("Usuario", back_populates="sesiones")
 
-    activa = Column(
-        Boolean,
-        default=True,
-        nullable=False
-    )
-
-    # ==============================
-    # RELACIÓN
-    # ==============================
-
-    usuario = relationship(
-        "Usuario",
-        back_populates="sesiones"
-    )
-
-
-# ==========================================
-# INTENTOS DE LOGIN
-# ==========================================
 
 class LoginAttempt(Base):
-
     __tablename__ = "login_attempt"
 
-    # ==============================
-    # ID
-    # ==============================
-
-    id = Column(
-        Integer,
-        primary_key=True,
-        index=True
-    )
-
-    # ==============================
-    # USUARIO
-    # ==============================
-
-    username = Column(
-        String(100),
-        nullable=False,
-        unique=True
-    )
-
-    # ==============================
-    # INTENTOS FALLIDOS
-    # ==============================
-
-    intentos = Column(
-        Integer,
-        default=0,
-        nullable=False
-    )
-
-    # ==============================
-    # BLOQUEO TEMPORAL
-    # ==============================
-
-    bloqueado_hasta = Column(
-        TIMESTAMP,
-        nullable=True
-    )
-
-    # ==============================
-    # ÚLTIMO INTENTO
-    # ==============================
-
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(100), nullable=False, unique=True)
+    intentos = Column(Integer, default=0, nullable=False)
+    bloqueado_hasta = Column(TIMESTAMP(timezone=True), nullable=True)
     ultimo_intento = Column(
-        TIMESTAMP,
+        TIMESTAMP(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
-        nullable=False
+        nullable=False,
     )
