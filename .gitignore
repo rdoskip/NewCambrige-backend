@@ -32,3 +32,5 @@ htmlcov/
 # ── Scraper ───────────────────────────────────────────────────
 logs/
 downloads/
+
+markdown
